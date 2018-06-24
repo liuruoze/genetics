@@ -59,11 +59,10 @@ class DiscreteSimulation:
                                                   key=lambda member: member[0])]
 
         # Yield the elite elements
-        for elite in scored_population[:self.elite_size]:
-            yield elite
-
-        # Yield the crossover and mutate elements
+        yield from scored_population[:self.elite_size]
+        # Generate parents
         for parent1, parent2 in pairwise(self.parents(scored_population)):
+            # crossover parents
             mask = self.crossover_mask(parent1.total_length())
             for child in parent1.combine(parent2, mask):
                 # mutate
