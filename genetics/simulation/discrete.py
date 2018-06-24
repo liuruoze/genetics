@@ -1,9 +1,10 @@
 from collections.abc import Sequence
 
+
 def pairwise(iterable):
     '''
     Given an iterable, yield the items in it in pairs. For instance:
-    
+
         list(pairwise([1,2,3,4])) == [(1,2), (3,4)]
     '''
     x = iter(iterable)
@@ -11,9 +12,10 @@ def pairwise(iterable):
 
 
 class DiscreteSimulation:
+
     def __init__(self, population_size, mutation_mask, crossover_mask,
-            selection_function, elite_size,
-            initial_generator, fitness_function):
+                 selection_function, elite_size,
+                 initial_generator, fitness_function):
         self.population_size = population_size
         self.mutation_mask = mutation_mask
         self.crossover_mask = crossover_mask
@@ -45,7 +47,7 @@ class DiscreteSimulation:
         Create an initial populaton
         '''
         return [self.initial_generator() for _ in
-                    range(self.population_size)]
+                range(self.population_size)]
 
     def step_generator(self, population):
         '''
@@ -53,14 +55,15 @@ class DiscreteSimulation:
         population members
         '''
         # Score and sort population
-        scored_population = sorted(self.find_scores(population), reverse=True,
-            key=lambda member: member[0])
+        scored_population = [m[1] for m in sorted(self.find_scores(population), reverse=True,
+                                                  key=lambda member: member[0])]
 
         # Yield the elite elements
-        yield from scored_population[:self.elite_size]
-        # Generate parents
+        for elite in scored_population[:self.elite_size]:
+            yield elite
+
+        # Yield the crossover and mutate elements
         for parent1, parent2 in pairwise(self.parents(scored_population)):
-            # crossover parents
             mask = self.crossover_mask(parent1.total_length())
             for child in parent1.combine(parent2, mask):
                 # mutate
@@ -72,4 +75,3 @@ class DiscreteSimulation:
         list.
         '''
         return list(self.step_generator(population))
-
